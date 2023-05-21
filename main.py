@@ -7,13 +7,13 @@ app = FastAPI()
 
 
 @app.get("/test")
-async def test():
+def test():
     content = {"message": "Hello World"}
     return JSONResponse(content=content)
 
 
 @app.get("/")
-async def person():
+def person():
     content = {
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "Person",
@@ -35,7 +35,7 @@ async def person():
 
 
 @app.get("/.well-known/host-meta")
-async def webfinger_host_meta():
+def webfinger_host_meta():
     data = """<?xml version="1.0"?>
         <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
             <Link rel="lrdd" type="application/xrd+xml" template="https://activity-pub-server.onrender.com/.well-known/webfinger?resource={uri}"/>\
@@ -46,7 +46,7 @@ async def webfinger_host_meta():
 
 
 @app.get("/.well-known/webfinger")
-async def webfinger_resource():
+def webfinger_resource():
     content = {
         "subject": "acct:test@activity-pub-server.onrender.com",
         "links": [

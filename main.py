@@ -9,6 +9,7 @@ server = "activity-pub-server.onrender.com"
 actor = "test"
 
 
+@app.get(f"/@{actor}")
 @app.get(f"/users/{actor}")
 def person():
     content = {

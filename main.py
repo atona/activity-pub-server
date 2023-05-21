@@ -21,7 +21,7 @@ def person():
         "url": f"https://{server}/users/{actor}",  # プロフィールページのURL
         "summary": "my simple activitypub",  # 概要
         "preferredUsername": f"{actor}",  # ユーザID
-        "name": "actor river",  # 表示名
+        "name": "actor river dragon this help",  # 表示名
         "inbox": f"https://{server}/users/{actor}/inbox",  # このユーザへの宛先
         "outbox": f"https://{server}/users/{actor}/outbox",  # このユーザの発信元
     }

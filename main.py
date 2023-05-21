@@ -48,7 +48,7 @@ async def webfinger_host_meta():
 @app.get("/.well-known/webfinger")
 async def webfinger_resource():
     content = {
-        "subject": "acct:test@example.com",
+        "subject": "acct:test@activity-pub-server.onrender.com",
         "links": [
             {
                 "rel": "self",

@@ -3,7 +3,7 @@ from xml.dom.minidom import parseString
 from fastapi import Response
 from fastapi.responses import JSONResponse
 
-from .apps import app
+from .main import app
 
 server = "activity-pub-server.onrender.com"
 actor = "test"

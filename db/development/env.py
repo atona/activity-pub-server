@@ -20,7 +20,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-from models.models import Base
+from activitypub.models import Base
 
 target_metadata = Base.metadata
 

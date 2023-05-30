@@ -1,4 +1,4 @@
-from activitypub.apps import app
+from activitypub.main import app
 
 if __name__ == "__main__":
     app.run()

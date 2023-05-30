@@ -1,3 +1,4 @@
+import typing
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -33,7 +34,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     created_at: datetime
-    tasks: list[Task] = []
+    tasks: typing.List[Task] = []
 
     class Config:
         orm_mode = True

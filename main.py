@@ -25,6 +25,32 @@ def person():
         "name": "actor river dragon this help",  # 表示名
         "inbox": f"https://{server}/users/{actor}/inbox",  # このユーザへの宛先
         "outbox": f"https://{server}/users/{actor}/outbox",  # このユーザの発信元
+        "publicKey": {
+            "id": f"https://{server}/users/{actor}#main-key",
+            "owner": "https://{server}/users/{actor}",
+            "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyPEg43747qkgIW2vbyZi\nkFmct7co1IiWXXBAoL3JzOPtHLJQGCE7+JogmmGQ3Rl3CdOjcm+0M2/xl9w0oyCU\nyx4STZ9at1Mem1Dq07e/KLMN0w/hXiR4zTeIMuVWx4/jYxjwKT1sp4ermEGmDPRD\nb2HlbN3CzHGJUlsIHSjOP9GtPy24JNItnEff0LoKMwHt6VUo8UEPmuFoxLmgmxD0\nqyryiViw0CGB4nTdy378KWTOFdLADM1LWOkmt/Ao4n0Ho0COABuhWhgPR9ymJa73\nwKbynjpj8wFU7KLuXHOlY0Bl/6mBMb2RjmpFnhJVQgqJAmMCozMw/Mp3Y4JYWsSy\nUwIDAQAB\n-----END PUBLIC KEY-----\n",
+        },
+    }
+    headers = {"Content-Type": "application/activity+json"}
+    return JSONResponse(content=content, headers=headers)
+
+
+@app.route(f"/users/{actor}/note")
+def note():
+    content = {
+        "@context": [
+            "https://www.w3.org/ns/activitystreams",
+            "https://w3id.org/security/v1",
+        ],
+        "id": f"https://{server}/users/{actor}/1",  # Fediverseで一意
+        "type": "Note",
+        "attributedTo": f"https://{server}/users/{actor}",  # 投稿者のPerson#id
+        "content": "<p>投稿内容</p>",  # XHTMLで記述された投稿内容
+        "published": "2018-06-18T12:00:00+09:00",  # ISO形式の投稿日
+        "to": [  # 公開範囲
+            "https://www.w3.org/ns/activitystreams#Public",  # 公開（連合？）
+            f"https://{server}/users/{actor}/follower",  # フォロワー
+        ],
     }
     headers = {"Content-Type": "application/activity+json"}
     return JSONResponse(content=content, headers=headers)

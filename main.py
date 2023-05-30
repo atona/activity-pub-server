@@ -27,7 +27,7 @@ def person():
         "outbox": f"https://{server}/users/{actor}/outbox",  # このユーザの発信元
         "publicKey": {
             "id": f"https://{server}/users/{actor}#main-key",
-            "owner": "https://{server}/users/{actor}",
+            "owner": f"https://{server}/users/{actor}",
             "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyPEg43747qkgIW2vbyZi\nkFmct7co1IiWXXBAoL3JzOPtHLJQGCE7+JogmmGQ3Rl3CdOjcm+0M2/xl9w0oyCU\nyx4STZ9at1Mem1Dq07e/KLMN0w/hXiR4zTeIMuVWx4/jYxjwKT1sp4ermEGmDPRD\nb2HlbN3CzHGJUlsIHSjOP9GtPy24JNItnEff0LoKMwHt6VUo8UEPmuFoxLmgmxD0\nqyryiViw0CGB4nTdy378KWTOFdLADM1LWOkmt/Ao4n0Ho0COABuhWhgPR9ymJa73\nwKbynjpj8wFU7KLuXHOlY0Bl/6mBMb2RjmpFnhJVQgqJAmMCozMw/Mp3Y4JYWsSy\nUwIDAQAB\n-----END PUBLIC KEY-----\n",
         },
     }
@@ -35,7 +35,7 @@ def person():
     return JSONResponse(content=content, headers=headers)
 
 
-@app.route(f"/users/{actor}/note")
+@app.get(f"/users/{actor}/note")
 def note():
     content = {
         "@context": [

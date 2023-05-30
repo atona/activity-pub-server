@@ -1,9 +1,9 @@
 from xml.dom.minidom import parseString
 
-from fastapi import FastAPI, Response
+from fastapi import Response
 from fastapi.responses import JSONResponse
 
-app = FastAPI()
+from .apps import app
 
 server = "activity-pub-server.onrender.com"
 actor = "test"

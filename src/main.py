@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
@@ -32,7 +34,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.get("/users/", response_model=list[schemas.User])
+@app.get("/users/", response_model=List[schemas.User])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
@@ -54,7 +56,7 @@ def create_task_for_user(
     return task
 
 
-@app.get("/users/{user_id}/tasks/", response_model=list[schemas.Task])
+@app.get("/users/{user_id}/tasks/", response_model=List[schemas.Task])
 def get_tasks_for_user(
     user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 ):

@@ -5,3 +5,4 @@ __pycache__
 *.code-workspace
 .python-version
 .env
+*.http

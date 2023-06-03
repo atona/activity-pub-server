@@ -1,3 +1,4 @@
+import os
 import re
 from typing import Any, Union
 from xml.dom.minidom import parseString
@@ -9,9 +10,12 @@ from sqlalchemy.orm import Session
 
 from . import crud, models, schemas
 from .main import app, get_db
+from .settings import get_settings
 
-server = "activity-pub-server.onrender.com"
-actor = "test"
+# server = "activity-pub-server.onrender.com"
+# actor = "test"
+
+settings = get_settings()
 
 
 @app.get("/@{name}")
@@ -22,17 +26,17 @@ def person(name: str):
             "https://www.w3.org/ns/activitystreams",
             "https://w3id.org/security/v1",
         ],
-        "id": f"https://{server}/users/{name}",  # Fediverseで一意
+        "id": f"{settings.get_base_url()}/users/{name}",  # Fediverseで一意
         "type": "Person",
-        "url": f"https://{server}/users/{name}",  # プロフィールページのURL
+        "url": f"{settings.get_base_url()}/users/{name}",  # プロフィールページのURL
         "summary": "my simple activitypub",  # 概要
         "preferredUsername": f"{name}",  # ユーザID
         "name": "actor river dragon this help",  # 表示名
-        "inbox": f"https://{server}/users/{name}/inbox",  # このユーザへの宛先
-        "outbox": f"https://{server}/users/{name}/outbox",  # このユーザの発信元
+        "inbox": f"{settings.get_base_url()}/users/{name}/inbox",  # このユーザへの宛先
+        "outbox": f"{settings.get_base_url()}/users/{name}/outbox",  # このユーザの発信元
         "publicKey": {
-            "id": f"https://{server}/users/{name}#main-key",
-            "owner": f"https://{server}/users/{name}",
+            "id": f"{settings.get_base_url()}/users/{name}#main-key",
+            "owner": f"{settings.get_base_url()}/users/{name}",
             "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyPEg43747qkgIW2vbyZi\nkFmct7co1IiWXXBAoL3JzOPtHLJQGCE7+JogmmGQ3Rl3CdOjcm+0M2/xl9w0oyCU\nyx4STZ9at1Mem1Dq07e/KLMN0w/hXiR4zTeIMuVWx4/jYxjwKT1sp4ermEGmDPRD\nb2HlbN3CzHGJUlsIHSjOP9GtPy24JNItnEff0LoKMwHt6VUo8UEPmuFoxLmgmxD0\nqyryiViw0CGB4nTdy378KWTOFdLADM1LWOkmt/Ao4n0Ho0COABuhWhgPR9ymJa73\nwKbynjpj8wFU7KLuXHOlY0Bl/6mBMb2RjmpFnhJVQgqJAmMCozMw/Mp3Y4JYWsSy\nUwIDAQAB\n-----END PUBLIC KEY-----\n",
         },
     }
@@ -47,14 +51,14 @@ def note(name: str):
             "https://www.w3.org/ns/activitystreams",
             "https://w3id.org/security/v1",
         ],
-        "id": f"https://{server}/users/{name}/1",  # Fediverseで一意
+        "id": f"{settings.get_base_url()}/users/{name}/1",  # Fediverseで一意
         "type": "Note",
-        "attributedTo": f"https://{server}/users/{name}",  # 投稿者のPerson#id
+        "attributedTo": f"{settings.get_base_url()}/users/{name}",  # 投稿者のPerson#id
         "content": "<p>投稿内容</p>",  # XHTMLで記述された投稿内容
         "published": "2018-06-18T12:00:00+09:00",  # ISO形式の投稿日
         "to": [  # 公開範囲
             "https://www.w3.org/ns/activitystreams#Public",  # 公開（連合？）
-            f"https://{server}/users/{name}/follower",  # フォロワー
+            f"{settings.get_base_url()}/users/{name}/follower",  # フォロワー
         ],
     }
     headers = {"Content-Type": "application/activity+json"}
@@ -100,8 +104,7 @@ def webfinger_host_meta():
         '<?xml version="1.0"?>\
         <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">\
             <Link rel="lrdd" type="application/xrd+xml" template="'
-        + "https://"
-        + server
+        + settings.get_base_url()
         + '/.well-known/webfinger?resource={uri}"/>\
         </XRD>'
     )
@@ -112,29 +115,38 @@ def webfinger_host_meta():
 def webfinger_resource(
     request: Request, resource: Union[str, None] = None, db: Session = Depends(get_db)
 ):
+    print(request.base_url)
     print(resource)
     m = re.match("^acct:([a-zA-Z0-9_\-]+)@([a-zA-Z0-9_\-\.]+)", resource)
     subject, name, domain = m.group(0, 1, 2) if m else [None, None, None]
     user = crud.get_user_by_name(db, name=name)
-    if domain != server or user is None:
+    print(domain)
+    print(settings.app_domain)
+    print(settings.app_port)
+    print(settings.app_protocol)
+    print(settings.get_base_url())
+    if domain != settings.app_domain or user is None:
         raise HTTPException(status_code=404, detail=f"Not Found.")
     content = {
         "subject": subject,
-        "aliases": [f"https://{server}/@{name}", f"https://{server}/users/{name}"],
+        "aliases": [
+            f"{settings.get_base_url()}/@{name}",
+            f"{settings.get_base_url()}/users/{name}",
+        ],
         "links": [
             {
                 "rel": "http://webfinger.net/rel/profile-page",
                 "type": "text/html",
-                "href": f"https://{server}/@{name}",
+                "href": f"{settings.get_base_url()}/@{name}",
             },
             {
                 "rel": "self",
                 "type": "application/activity+json",
-                "href": f"https://{server}/users/{name}",
+                "href": f"{settings.get_base_url()}/users/{name}",
             },
             {
                 "rel": "http://ostatus.org/schema/1.0/subscribe",
-                "template": f"https://{server}/authorize_interaction?uri={{uri}}",
+                "template": f"{settings.get_base_url()}/authorize_interaction?uri={{uri}}",
             },
         ],
     }

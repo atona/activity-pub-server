@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     def get_base_url(self):
         port_str = f":{self.app_port}" if self.app_port else ""
-        return f"{self.app_protocol}:{self.app_domain}{port_str}"
+        return f"{self.app_protocol}://{self.app_domain}{port_str}"
 
 
 def get_settings():

@@ -1,9 +1,11 @@
+from typing import Union
 from xml.dom.minidom import parseString
 
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from . import interfaces
 from .main import app
 from .settings import get_settings
 
@@ -60,6 +62,7 @@ def note(name: str):
 class InboxModel(BaseModel):
     type: str
     actor: str
+    object: Union[str, interfaces.Object]
 
 
 @app.post("/users/{name}/inbox")
@@ -75,7 +78,7 @@ def inbox(name: str, body: InboxModel, request: Request):
 
         # Acceptを返す処理を書く
 
-        return JSONResponse(status_code=200, content={"detaile": "success"})
+        return JSONResponse(status_code=200, content={"detaile": "success Follow"})
     elif jsn["type"] == "Undo":
         obj = jsn["object"]
         if type(obj) != dict or "type" not in obj:
@@ -85,6 +88,6 @@ def inbox(name: str, body: InboxModel, request: Request):
 
             # Acceptを返す処理を書く
 
-            return JSONResponse(status_code=200, content={"detaile": "success"})
+            return JSONResponse(status_code=200, content={"detaile": "success Undo"})
 
     raise HTTPException(status_code=501, detail=f"Not Found.")

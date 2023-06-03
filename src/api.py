@@ -1,33 +1,38 @@
+import re
+from typing import Any, Union
 from xml.dom.minidom import parseString
 
-from fastapi import HTTPException, Request, Response
+from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from .main import app
+from . import crud, models, schemas
+from .main import app, get_db
 
 server = "activity-pub-server.onrender.com"
 actor = "test"
 
 
-@app.get(f"/@{actor}")
-@app.get(f"/users/{actor}")
-def person():
+@app.get("/@{name}")
+@app.get("/users/{name}")
+def person(name: str):
     content = {
         "@context": [
             "https://www.w3.org/ns/activitystreams",
             "https://w3id.org/security/v1",
         ],
-        "id": f"https://{server}/users/{actor}",  # Fediverseで一意
+        "id": f"https://{server}/users/{name}",  # Fediverseで一意
         "type": "Person",
-        "url": f"https://{server}/users/{actor}",  # プロフィールページのURL
+        "url": f"https://{server}/users/{name}",  # プロフィールページのURL
         "summary": "my simple activitypub",  # 概要
-        "preferredUsername": f"{actor}",  # ユーザID
+        "preferredUsername": f"{name}",  # ユーザID
         "name": "actor river dragon this help",  # 表示名
-        "inbox": f"https://{server}/users/{actor}/inbox",  # このユーザへの宛先
-        "outbox": f"https://{server}/users/{actor}/outbox",  # このユーザの発信元
+        "inbox": f"https://{server}/users/{name}/inbox",  # このユーザへの宛先
+        "outbox": f"https://{server}/users/{name}/outbox",  # このユーザの発信元
         "publicKey": {
-            "id": f"https://{server}/users/{actor}#main-key",
-            "owner": f"https://{server}/users/{actor}",
+            "id": f"https://{server}/users/{name}#main-key",
+            "owner": f"https://{server}/users/{name}",
             "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyPEg43747qkgIW2vbyZi\nkFmct7co1IiWXXBAoL3JzOPtHLJQGCE7+JogmmGQ3Rl3CdOjcm+0M2/xl9w0oyCU\nyx4STZ9at1Mem1Dq07e/KLMN0w/hXiR4zTeIMuVWx4/jYxjwKT1sp4ermEGmDPRD\nb2HlbN3CzHGJUlsIHSjOP9GtPy24JNItnEff0LoKMwHt6VUo8UEPmuFoxLmgmxD0\nqyryiViw0CGB4nTdy378KWTOFdLADM1LWOkmt/Ao4n0Ho0COABuhWhgPR9ymJa73\nwKbynjpj8wFU7KLuXHOlY0Bl/6mBMb2RjmpFnhJVQgqJAmMCozMw/Mp3Y4JYWsSy\nUwIDAQAB\n-----END PUBLIC KEY-----\n",
         },
     }
@@ -35,55 +40,58 @@ def person():
     return JSONResponse(content=content, headers=headers)
 
 
-@app.get(f"/users/{actor}/note")
-def note():
+@app.get("/users/{name}/note")
+def note(name: str):
     content = {
         "@context": [
             "https://www.w3.org/ns/activitystreams",
             "https://w3id.org/security/v1",
         ],
-        "id": f"https://{server}/users/{actor}/1",  # Fediverseで一意
+        "id": f"https://{server}/users/{name}/1",  # Fediverseで一意
         "type": "Note",
-        "attributedTo": f"https://{server}/users/{actor}",  # 投稿者のPerson#id
+        "attributedTo": f"https://{server}/users/{name}",  # 投稿者のPerson#id
         "content": "<p>投稿内容</p>",  # XHTMLで記述された投稿内容
         "published": "2018-06-18T12:00:00+09:00",  # ISO形式の投稿日
         "to": [  # 公開範囲
             "https://www.w3.org/ns/activitystreams#Public",  # 公開（連合？）
-            f"https://{server}/users/{actor}/follower",  # フォロワー
+            f"https://{server}/users/{name}/follower",  # フォロワー
         ],
     }
     headers = {"Content-Type": "application/activity+json"}
     return JSONResponse(content=content, headers=headers)
 
 
-@app.post(f"/users/{actor}/inbox")
-def inbox(request: Request):
+class InboxModel(BaseModel):
+    type: str
+    actor: str
+
+
+@app.post("/users/{name}/inbox")
+def inbox(name: str, body: InboxModel, request: Request):
     if request.headers["Content-Type"] != "application/activity+json":
         raise HTTPException(status_code=400, detail=f"Not Found.")
 
-    # jsn = request.headers
-    # print(jsn)
-    # if type(jsn) != dict or "type" not in jsn:
-    #     raise HTTPException(status_code=400, detail=f"Not Found. b")
-    # elif jsn["type"] == "Follow":
-    #     # Follow処理を書く
+    jsn = body.dict()
+    if type(jsn) != dict or "type" not in jsn:
+        raise HTTPException(status_code=400, detail=f"Not Found.")
+    elif jsn["type"] == "Follow":
+        # Follow処理を書く
 
-    #     # Acceptを返す処理を書く
+        # Acceptを返す処理を書く
 
-    #     return Response(status=200)
-    # elif jsn["type"] == "Undo":
-    #     obj = jsn["object"]
-    #     if type(obj) != dict or "type" not in obj:
-    #         raise HTTPException(status_code=400, detail=f"Not Found. c")
-    #     elif obj["type"] == "Follow":
-    #         # Unfollow処理を書く
+        return JSONResponse(status_code=200, content={"detaile": "success"})
+    elif jsn["type"] == "Undo":
+        obj = jsn["object"]
+        if type(obj) != dict or "type" not in obj:
+            raise HTTPException(status_code=400, detail=f"Not Found.")
+        elif obj["type"] == "Follow":
+            # Unfollow処理を書く
 
-    #         # Acceptを返す処理を書く
+            # Acceptを返す処理を書く
 
-    #         return JSONResponse(status_code=200)
+            return JSONResponse(status_code=200, content={"detaile": "success"})
 
-    # raise HTTPException(status_code=501, detail=f"Not Found.")
-    return JSONResponse(content={"message": "inbox"})
+    raise HTTPException(status_code=501, detail=f"Not Found.")
 
 
 @app.get("/.well-known/host-meta")
@@ -101,20 +109,28 @@ def webfinger_host_meta():
 
 
 @app.get("/.well-known/webfinger")
-def webfinger_resource():
+def webfinger_resource(
+    request: Request, resource: Union[str, None] = None, db: Session = Depends(get_db)
+):
+    print(resource)
+    m = re.match("^acct:([a-zA-Z0-9_\-]+)@([a-zA-Z0-9_\-\.]+)", resource)
+    subject, name, domain = m.group(0, 1, 2) if m else [None, None, None]
+    user = crud.get_user_by_name(db, name=name)
+    if domain != server or user is None:
+        raise HTTPException(status_code=404, detail=f"Not Found.")
     content = {
-        "subject": f"acct:{actor}@{server}",
-        "aliases": [f"https://{server}/@{actor}", f"https://{server}/users/{actor}"],
+        "subject": subject,
+        "aliases": [f"https://{server}/@{name}", f"https://{server}/users/{name}"],
         "links": [
             {
                 "rel": "http://webfinger.net/rel/profile-page",
                 "type": "text/html",
-                "href": f"https://{server}/@{actor}",
+                "href": f"https://{server}/@{name}",
             },
             {
                 "rel": "self",
                 "type": "application/activity+json",
-                "href": f"https://{server}/users/{actor}",
+                "href": f"https://{server}/users/{name}",
             },
             {
                 "rel": "http://ostatus.org/schema/1.0/subscribe",

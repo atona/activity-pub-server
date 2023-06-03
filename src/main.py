@@ -40,28 +40,28 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return users
 
 
-@app.get("/users/{user_id}", response_model=schemas.User)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    user = crud.get_user(db, user_id=user_id)
-    if user:
-        raise HTTPException(status_code=404, detail=f"User ID: {user_id} not found")
-    return user
+# @app.get("/users/{user_id}", response_model=schemas.User)
+# def get_user(user_id: int, db: Session = Depends(get_db)):
+#     user = crud.get_user(db, user_id=user_id)
+#     if user:
+#         raise HTTPException(status_code=404, detail=f"User ID: {user_id} not found")
+#     return user
 
 
-@app.post("/users/{user_id}/tasks/", response_model=schemas.Task)
-def create_task_for_user(
-    user_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db)
-):
-    task = crud.create_user_task(db=db, task=task, user_id=user_id)
-    return task
+# @app.post("/users/{user_id}/tasks/", response_model=schemas.Task)
+# def create_task_for_user(
+#     user_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db)
+# ):
+#     task = crud.create_user_task(db=db, task=task, user_id=user_id)
+#     return task
 
 
-@app.get("/users/{user_id}/tasks/", response_model=List[schemas.Task])
-def get_tasks_for_user(
-    user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
-):
-    tasks = crud.get_tasks(db=db, user_id=user_id, skip=skip, limit=limit)
-    return tasks
+# @app.get("/users/{user_id}/tasks/", response_model=List[schemas.Task])
+# def get_tasks_for_user(
+#     user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+# ):
+#     tasks = crud.get_tasks(db=db, user_id=user_id, skip=skip, limit=limit)
+#     return tasks
 
 
 import src.api

@@ -1,6 +1,6 @@
 from xml.dom.minidom import parseString
 
-from fastapi import Response
+from fastapi import HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
 from .main import app
@@ -54,6 +54,36 @@ def note():
     }
     headers = {"Content-Type": "application/activity+json"}
     return JSONResponse(content=content, headers=headers)
+
+
+@app.post(f"/users/{actor}/inbox")
+def inbox(request: Request):
+    if request.headers["Content-Type"] != "application/activity+json":
+        raise HTTPException(status_code=400, detail=f"Not Found.")
+
+    # jsn = request.headers
+    # print(jsn)
+    # if type(jsn) != dict or "type" not in jsn:
+    #     raise HTTPException(status_code=400, detail=f"Not Found. b")
+    # elif jsn["type"] == "Follow":
+    #     # Follow処理を書く
+
+    #     # Acceptを返す処理を書く
+
+    #     return Response(status=200)
+    # elif jsn["type"] == "Undo":
+    #     obj = jsn["object"]
+    #     if type(obj) != dict or "type" not in obj:
+    #         raise HTTPException(status_code=400, detail=f"Not Found. c")
+    #     elif obj["type"] == "Follow":
+    #         # Unfollow処理を書く
+
+    #         # Acceptを返す処理を書く
+
+    #         return JSONResponse(status_code=200)
+
+    # raise HTTPException(status_code=501, detail=f"Not Found.")
+    return JSONResponse(content={"message": "inbox"})
 
 
 @app.get("/.well-known/host-meta")

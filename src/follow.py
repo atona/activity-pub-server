@@ -4,8 +4,9 @@ import requests
 
 
 def follower_from_actor(actor):
+    headers = {"User-Agent": "Mozilla/5.0"}
     print(f"{actor}.json")
-    response = requests.get(f"{actor}.json")
+    response = requests.get(f"{actor}.json", headers=headers)
     print(response.status_code)
     if response.status_code >= 400 and response.status_code < 600:
         raise Exception("actor json request error")

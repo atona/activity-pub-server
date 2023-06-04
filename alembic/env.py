@@ -3,8 +3,8 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from src import models  # 追記
 from src.database import SQLALCHEMY_DATABASE_URL, Base  # 追記
+from src.models import Task, User
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,7 +20,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
-target_metadata = models.Base.metadata  # 追記
+target_metadata = Base.metadata  # 追記
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

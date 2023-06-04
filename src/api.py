@@ -1,4 +1,4 @@
-from typing import Union
+from typing import TypedDict, Union
 from xml.dom.minidom import parseString
 
 from fastapi import HTTPException, Request
@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from . import interfaces
+from .follow import follower_from_actor
 from .main import app
 from .settings import get_settings
 
@@ -59,6 +60,17 @@ def note(name: str):
     return JSONResponse(content=content, headers=headers)
 
 
+# InboxModel = TypedDict(
+#     "InboxModel",
+#     {
+#         "@context": str,
+#         "type": str,
+#         "actor": str,
+#         "object": Union[str, TypedDict("Object", {"type": str, "actor": str})],
+#     },
+# )
+
+
 class InboxModel(BaseModel):
     type: str
     actor: str
@@ -74,6 +86,8 @@ def inbox(name: str, body: InboxModel, request: Request):
     if type(jsn) != dict or "type" not in jsn:
         raise HTTPException(status_code=400, detail=f"Not Found.")
     elif jsn["type"] == "Follow":
+        print(jsn["actor"])
+        follower_from_actor(jsn["actor"])
         # Follow処理を書く
 
         # Acceptを返す処理を書く

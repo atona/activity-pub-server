@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from src.core.database import SQLALCHEMY_DATABASE_URL, Base  # 追記
-from src.models import Task, User
+from src.models import Follower, Task, User
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

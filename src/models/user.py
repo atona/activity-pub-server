@@ -1,13 +1,13 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..core.database import Base
 
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
@@ -18,3 +18,7 @@ class User(Base):
     )
 
     tasks = relationship("Task", back_populates="user")
+
+    followers = relationship(
+        "Follower", secondary="user_follower", back_populates="users"
+    )

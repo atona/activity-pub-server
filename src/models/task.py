@@ -7,7 +7,7 @@ from ..core.database import Base
 
 
 class Task(Base):
-    __tablename__ = "tasks"
+    __tablename__ = "task"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
@@ -16,6 +16,6 @@ class Task(Base):
     updated_at = Column(
         DateTime, default=datetime.now(), onupdate=datetime.now(), nullable=False
     )
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))
 
     user = relationship("User", back_populates="tasks")

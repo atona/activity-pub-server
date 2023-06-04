@@ -1,18 +1,14 @@
 from typing import List
 
-from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 from . import crud, schemas
-from .database import Base, SessionLocal, engine
+from .core.database import Base, SessionLocal, engine
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-# .envファイルの内容を読み込見込む
-load_dotenv()
 
 
 # DBに接続

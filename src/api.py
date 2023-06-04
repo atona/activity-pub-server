@@ -6,11 +6,9 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from . import interfaces
+from .core.settings import settings
 from .follow import follower_from_actor
 from .main import app
-from .settings import get_settings
-
-settings = get_settings()
 
 
 @app.get("/@{name}")
@@ -21,17 +19,17 @@ def person(name: str):
             "https://www.w3.org/ns/activitystreams",
             "https://w3id.org/security/v1",
         ],
-        "id": f"{settings.get_base_url()}/users/{name}",  # Fediverseで一意
+        "id": f"{settings.app_base_url()}/users/{name}",  # Fediverseで一意
         "type": "Person",
-        "url": f"{settings.get_base_url()}/users/{name}",  # プロフィールページのURL
+        "url": f"{settings.app_base_url()}/users/{name}",  # プロフィールページのURL
         "summary": "my simple activitypub",  # 概要
         "preferredUsername": f"{name}",  # ユーザID
         "name": "actor river dragon this help",  # 表示名
-        "inbox": f"{settings.get_base_url()}/users/{name}/inbox",  # このユーザへの宛先
-        "outbox": f"{settings.get_base_url()}/users/{name}/outbox",  # このユーザの発信元
+        "inbox": f"{settings.app_base_url()}/users/{name}/inbox",  # このユーザへの宛先
+        "outbox": f"{settings.app_base_url()}/users/{name}/outbox",  # このユーザの発信元
         "publicKey": {
-            "id": f"{settings.get_base_url()}/users/{name}#main-key",
-            "owner": f"{settings.get_base_url()}/users/{name}",
+            "id": f"{settings.app_base_url()}/users/{name}#main-key",
+            "owner": f"{settings.app_base_url()}/users/{name}",
             "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyPEg43747qkgIW2vbyZi\nkFmct7co1IiWXXBAoL3JzOPtHLJQGCE7+JogmmGQ3Rl3CdOjcm+0M2/xl9w0oyCU\nyx4STZ9at1Mem1Dq07e/KLMN0w/hXiR4zTeIMuVWx4/jYxjwKT1sp4ermEGmDPRD\nb2HlbN3CzHGJUlsIHSjOP9GtPy24JNItnEff0LoKMwHt6VUo8UEPmuFoxLmgmxD0\nqyryiViw0CGB4nTdy378KWTOFdLADM1LWOkmt/Ao4n0Ho0COABuhWhgPR9ymJa73\nwKbynjpj8wFU7KLuXHOlY0Bl/6mBMb2RjmpFnhJVQgqJAmMCozMw/Mp3Y4JYWsSy\nUwIDAQAB\n-----END PUBLIC KEY-----\n",
         },
     }
@@ -46,14 +44,14 @@ def note(name: str):
             "https://www.w3.org/ns/activitystreams",
             "https://w3id.org/security/v1",
         ],
-        "id": f"{settings.get_base_url()}/users/{name}/1",  # Fediverseで一意
+        "id": f"{settings.app_base_url()}/users/{name}/1",  # Fediverseで一意
         "type": "Note",
-        "attributedTo": f"{settings.get_base_url()}/users/{name}",  # 投稿者のPerson#id
+        "attributedTo": f"{settings.app_base_url()}/users/{name}",  # 投稿者のPerson#id
         "content": "<p>投稿内容</p>",  # XHTMLで記述された投稿内容
         "published": "2018-06-18T12:00:00+09:00",  # ISO形式の投稿日
         "to": [  # 公開範囲
             "https://www.w3.org/ns/activitystreams#Public",  # 公開（連合？）
-            f"{settings.get_base_url()}/users/{name}/follower",  # フォロワー
+            f"{settings().app_base_url()}/users/{name}/follower",  # フォロワー
         ],
     }
     headers = {"Content-Type": "application/activity+json"}
@@ -86,7 +84,6 @@ def inbox(name: str, body: InboxModel, request: Request):
     if type(jsn) != dict or "type" not in jsn:
         raise HTTPException(status_code=400, detail=f"Not Found.")
     elif jsn["type"] == "Follow":
-        print(jsn["actor"])
         follower_from_actor(jsn["actor"])
         # Follow処理を書く
 

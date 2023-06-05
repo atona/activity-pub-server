@@ -1,11 +1,13 @@
-from typing import Union
+from typing import List, Union
 
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
 
 
-def get_user_follower(db: Session, user_follower: schemas.UserFollowerGet):
+def get_user_follower(
+    db: Session, user_follower: schemas.UserFollowerGet
+) -> Union[schemas.UserFollower, None]:
     return (
         db.query(models.UserFollower)
         .filter(
@@ -16,11 +18,15 @@ def get_user_follower(db: Session, user_follower: schemas.UserFollowerGet):
     )
 
 
-def get_user_follower_list(db: Session, skip: int = 0, limit: int = 100):
+def get_user_follower_list(
+    db: Session, skip: int = 0, limit: int = 100
+) -> List[schemas.UserFollower]:
     return db.query(models.UserFollower).offset(skip).limit(limit).all()
 
 
-def create_user_follower(db: Session, user_follower: schemas.UserFollowerCreate):
+def create_user_follower(
+    db: Session, user_follower: schemas.UserFollowerCreate
+) -> schemas.UserFollower:
     new_user_follower = models.UserFollower(**user_follower.dict())
     db.add(new_user_follower)
     db.commit()
@@ -31,7 +37,7 @@ def create_user_follower(db: Session, user_follower: schemas.UserFollowerCreate)
 def get_or_create_user_follower(
     db: Session,
     user_follower: Union[schemas.UserFollowerCreate, schemas.UserFollowerGet],
-):
+) -> schemas.UserFollower:
     db_user_follower = get_user_follower(db, user_follower=user_follower)
     if db_user_follower:
         return db_user_follower

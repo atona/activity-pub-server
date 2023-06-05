@@ -33,7 +33,7 @@ def follow_service(
     user: schemas.User,
     follower: schemas.FollowerCreate,
     db: requests.Session,
-):
+) -> schemas.Follower:
     db_follower = crud.get_or_create_follower(db, follower)
     crud.get_or_create_user_follower(
         db, schemas.UserFollowerCreate(user_id=user.id, follower_id=db_follower.id)

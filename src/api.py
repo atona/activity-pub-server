@@ -1,14 +1,15 @@
 from typing import TypedDict, Union
 from xml.dom.minidom import parseString
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from requests import Session
 
-from . import interfaces
+from . import crud, interfaces, service
 from .core.settings import settings
-from .follow import follower_from_actor
-from .main import app
+from .main import app, get_db
+from .schemas import Follower
 
 
 @app.get("/@{name}")
@@ -76,16 +77,17 @@ class InboxModel(BaseModel):
 
 
 @app.post("/users/{name}/inbox")
-def inbox(name: str, body: InboxModel, request: Request):
+def inbox(name: str, body: InboxModel, request: Request, db: Session = Depends(get_db)):
     if request.headers["Content-Type"] != "application/activity+json":
         raise HTTPException(status_code=400, detail=f"Not Found.")
 
+    user = crud.get_user_by_name(db, name)
     jsn = body.dict()
     if type(jsn) != dict or "type" not in jsn:
         raise HTTPException(status_code=400, detail=f"Not Found.")
     elif jsn["type"] == "Follow":
-        follower_from_actor(jsn["actor"])
         # Follow処理を書く
+        follower: Follower = service.follow_from_actor_service(user, jsn["actor"], db)
 
         # Acceptを返す処理を書く
 

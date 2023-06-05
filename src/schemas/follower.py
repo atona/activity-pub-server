@@ -9,6 +9,7 @@ class FollowerCreate(FollowerBase):
 
 
 class Follower(FollowerBase):
+    id: int
     created_at: datetime
     updated_at: datetime
     users: Optional[List[UserBase]] = []

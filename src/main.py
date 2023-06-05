@@ -3,7 +3,7 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
-from . import crud, schemas
+from . import crud, schemas, service
 from .core.database import Base, SessionLocal, engine
 
 Base.metadata.create_all(bind=engine)
@@ -39,6 +39,22 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
+
+
+@app.post("/users/{name}/followers/", response_model=schemas.Follower)
+def create_follower(
+    name: str, follower: schemas.FollowerCreate, db: Session = Depends(get_db)
+):
+    user = service.get_user_service(schemas.UserGet(name=name), db)
+    return service.follow_service(user, follower, db)
+
+
+@app.get("/users/{name}/followers/", response_model=List[schemas.Follower])
+def get_users(
+    name: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
+    user = service.get_user_service(schemas.UserGet(name=name), db)
+    return user.followers[skip : limit - 1]
 
 
 # @app.get("/users/{user_id}", response_model=schemas.User)

@@ -5,11 +5,8 @@ from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
-    id: int = Field(alias="user_id")
     name: str
     display_name: Optional[str]
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         orm_mode = True
@@ -27,9 +24,18 @@ class TaskBase(BaseModel):
 
 
 class FollowerBase(BaseModel):
-    id: int = Field(alias="follower_id")
-    created_at: datetime
-    updated_at: datetime
+    name: str
+    domain: str
+    ap_id: str
+    inbox: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserFollowerBase(BaseModel):
+    user_id: int
+    follower_id: int
 
     class Config:
         orm_mode = True

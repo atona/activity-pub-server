@@ -38,6 +38,7 @@ def sign_headers(
     sign["Signature"] = (
         auth[len("Signature ") :] if auth.startswith("Signature ") else ""
     )
+    sign["User-Agent"] = "Mozilla/5.0"
     return sign
 
 

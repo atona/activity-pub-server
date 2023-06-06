@@ -28,5 +28,7 @@ class User(UserBase):
     tasks: List[Task] = []
     followers: Optional[List[FollowerBase]] = []
 
-    def ap_id(self):
-        return settings.app_base_url() + "/" + self.name
+
+class UserSecret(User):
+    private_key: str
+    public_key: str

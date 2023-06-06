@@ -8,6 +8,7 @@ from requests import Session
 
 from . import crud, interfaces, service
 from .core.settings import settings
+from .core.utils import post_accept
 from .main import app, get_db
 from .schemas import Follower
 
@@ -81,17 +82,20 @@ def inbox(name: str, body: InboxModel, request: Request, db: Session = Depends(g
     if request.headers["Content-Type"] != "application/activity+json":
         raise HTTPException(status_code=400, detail=f"Not Found.")
 
-    user = crud.get_user_by_name(db, name)
+    user = crud.get_user_secret_by_name(db, name)
     jsn = body.dict()
-    print(jsn)
     if type(jsn) != dict or "type" not in jsn:
         raise HTTPException(status_code=400, detail=f"Not Found.")
     elif jsn["type"] == "Follow":
-        # Follow処理を書く
-        follower: Follower = service.follow_from_actor_service(user, jsn["actor"], db)
-
-        # Acceptを返す処理を書く
-
+        try:
+            # Follow処理を書く
+            follower: Follower = service.follow_from_actor_service(
+                user, jsn["actor"], db
+            )
+            # Acceptを返す処理を書く
+            post_accept(user, follower, jsn)
+        except:
+            raise HTTPException(status_code=501, detail=f"Not Found.")
         return JSONResponse(status_code=200, content={"detaile": "success Follow"})
     elif jsn["type"] == "Undo":
         obj = jsn["object"]

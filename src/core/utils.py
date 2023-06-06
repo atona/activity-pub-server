@@ -52,6 +52,11 @@ def post_accept(account: schemas.UserSecret, target: schemas.Follower, activity)
     }
     headers = sign_headers(account, "POST", urlparse(to).path)
     response = requests.post(to, json=jsn, headers=headers)
+    print(urlparse(to).path)
+    print(target.inbox)
+    print(jsn)
+    print(activity)
     print(response.status_code)
+    print(headers)
     if response.status_code >= 400 and response.status_code < 600:
         raise Exception("accept post error")

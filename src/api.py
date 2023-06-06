@@ -83,6 +83,7 @@ def inbox(name: str, body: InboxModel, request: Request, db: Session = Depends(g
 
     user = crud.get_user_by_name(db, name)
     jsn = body.dict()
+    print(jsn)
     if type(jsn) != dict or "type" not in jsn:
         raise HTTPException(status_code=400, detail=f"Not Found.")
     elif jsn["type"] == "Follow":

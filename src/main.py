@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from . import crud, schemas, service
 from .core.database import Base, SessionLocal, engine
+from .core.utils import create_key_pair
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,13 +27,18 @@ def index():
 
 
 @app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user(user: schemas.UserCreateRequest, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_name(db, name=user.name)
     if db_user:
         raise HTTPException(
             status_code=400, detail=f"User name: {user.name} already exists."
         )
-    return crud.create_user(db=db, user=user)
+
+    new_user = schemas.UserCreate(
+        name=user.name, display_name=user.display_name, private_key="", public_key=""
+    )
+    new_user.private_key, new_user.public_key = create_key_pair()
+    return crud.create_user(db=db, user=new_user)
 
 
 @app.get("/users/", response_model=List[schemas.User])

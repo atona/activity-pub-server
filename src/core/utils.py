@@ -4,6 +4,16 @@ from urllib.parse import urlparse
 
 import httpsig
 import requests
+from Crypto import Random
+from Crypto.PublicKey import RSA
+
+
+def create_key_pair():
+    rsa = RSA.generate(2048, Random.new().read)
+    return [
+        rsa.exportKey().decode("utf-8"),
+        rsa.publickey().exportKey().decode("utf-8"),
+    ]
 
 
 def sign_headers(account, method, path):

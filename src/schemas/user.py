@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import List, Optional
 
+from src.core.settings import settings
+
 from .base import FollowerBase, UserBase
 from .task import Task
 
@@ -9,7 +11,13 @@ class UserGet(UserBase):
     pass
 
 
-class UserCreate(UserBase):
+class UserCreateRequest(UserBase):
+    pass
+
+
+class UserCreate(UserCreateRequest):
+    private_key: str
+    public_key: str
     pass
 
 
@@ -19,3 +27,6 @@ class User(UserBase):
     updated_at: datetime
     tasks: List[Task] = []
     followers: Optional[List[FollowerBase]] = []
+
+    def ap_id(self):
+        return settings.app_base_url() + "/" + self.name
